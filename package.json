@@ -5,14 +5,17 @@
   "license": "Apache 2.0",
   "homepage": "https://github.com/UnchartedBull/OctoDash",
   "author": {
-    "email": "timon.gaebelein@icloud.com",
-    "name": "Timon Gaebelein"
+    "name": "Timon Gaebelein",
+    "email": "timon.gaebelein@icloud.com"
   },
+  "main": "main.js",
+  "type": "module",
   "browserslist": [
     "chrome >= 120"
   ],
   "build": {
     "appId": "octodash",
+    "productName": "OctoDash",
     "directories": {
       "output": "package"
     },
@@ -37,21 +40,45 @@
       "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
     ],
     "linux": {
-      "category": "Utility",
-      "icon": "./src/assets/icon/icon.png",
       "target": [
         {
+          "target": "deb",
           "arch": [
             "armv7l",
             "arm64",
             "x64"
-          ],
-          "target": "deb"
+          ]
         }
-      ]
-    },
-    "productName": "OctoDash"
+      ],
+      "category": "Utility",
+      "icon": "./src/assets/icon/icon.png"
+    }
   },
+  "scripts": {
+    "prepare": "json2ts --input=src/helper/config.schema.json --output=src/model/config.model.ts",
+    "postprepare": "node -e \"import('./src/helper/config.js').then(({writeDefaultConfig})=>writeDefaultConfig()).catch(err=>console.error(err))\"",
+    "build": "ng build --configuration production",
+    "build:pack": "npm run build && npm run electron:pack",
+    "electron:dev": "APP_DEV=true electron .",
+    "electron:pack": "electron-builder build -l",
+    "electron:serve": "wait-on http-get://localhost:4200/ && electron .",
+    "electron": "electron .",
+    "test": "npm run lint",
+    "lint": "npm-run-all lint:js lint:css lint:style",
+    "lint:fix": "npm-run-all lint:js:fix lint:css:fix lint:style:fix",
+    "lint:js": "eslint . --max-warnings=0",
+    "lint:js:fix": "eslint . --fix",
+    "lint:css": "stylelint '**/*.css' '**/*.scss'",
+    "lint:css:fix": "stylelint --fix '**/*.css' '**/*.scss'",
+    "lint:style": "prettier --check .",
+    "lint:style:fix": "prettier --write .",
+    "locale:extract": "ng extract-i18n --output-path src/locale",
+    "locale:update:all": "node -e \"import('./src/helper/locale.js').then(({updateLocales})=>updateLocales()).catch(err=>console.error(err))\"",
+    "locale:update": "npm run locale:extract && npm run locale:update:all",
+    "serve": "ng serve",
+    "start": "APP_DEV=true npm-run-all -p serve electron:serve"
+  },
+  "private": true,
   "dependencies": {
     "@angular/animations": "^21.0.3",
     "@angular/cdk": "^21.0.2",
@@ -65,7 +92,7 @@
     "@angular/platform-browser-dynamic": "^21.0.3",
     "@angular/router": "^21.0.3",
     "@fortawesome/angular-fontawesome": "^4.0.0",
-    "@fortawesome/free-solid-svg-icons": "~7.2.0",
+    "@fortawesome/free-solid-svg-icons": "~7.1.0",
     "ajv": "~8.17.1",
     "angular-svg-round-progressbar": "^15.0.0",
     "bonjour-service": "^1.3.0",
@@ -75,14 +102,13 @@
     "lodash-es": "~4.17.23",
     "lottie-web": "~5.13.0",
     "mime-types": "^3.0.2",
-    "ngx-lottie": "~21.2.0",
+    "ngx-lottie": "~21.0.0",
     "progress-stream": "~2.0.0",
     "rxjs": "~7.8.1",
     "tslib": "~2.8.1",
     "xliff": "~6.3.0",
     "zone.js": "~0.15.1"
   },
-  "description": "OctoDash is a simple, but beautiful dashboard for Octoprint.",
   "devDependencies": {
     "@angular-devkit/build-angular": "^21.0.2",
     "@angular/cli": "^21.0.2",
@@ -106,11 +132,11 @@
     "json-schema-to-typescript": "^15.0.4",
     "npm-run-all": "~4.1.5",
     "prettier": "^3.8.1",
-    "stylelint": "^17.2.0",
+    "stylelint": "^17.1.1",
     "stylelint-config-standard-scss": "^17.0.0",
     "ts-node": "~10.9.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.55.0",
+    "typescript-eslint": "^8.54.0",
     "wait-on": "~9.0.3"
   }
 }
